@@ -43,14 +43,11 @@ public class FrontCompression {
         }
 
         String[] lines = corpus.split("\n");
-
         compressed += 0 + " " + lines[0] + "\n";
-
         for (int i = 1; i < lines.length; i++) {
             int shared = longestPrefix(lines[i - 1], lines[i]);
             compressed += shared + " " + lines[i].substring(shared, lines[i].length()) + "\n";
         }
-
         return compressed;
     }
 
@@ -71,7 +68,6 @@ public class FrontCompression {
         }
 
         String[] lines = corpus.split("\n");
-
         String lastLine = lines[0].split(" ")[1];
         String raw = lastLine + "\n";
         for (int i = 1; i < lines.length; i++) {
@@ -88,7 +84,6 @@ public class FrontCompression {
             raw += rawLine + "\n";
             lastLine = rawLine;
         }
-
         return raw;
     }
 
