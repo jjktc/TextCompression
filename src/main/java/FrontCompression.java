@@ -47,17 +47,22 @@ public class FrontCompression {
             return "";
         }
         if (SORTED) {
+
+
+
             String[] lines = corpus.split("\n");
-            compressed += 0 + " " + lines[0] + "\n";
+            compressed += lines[0] + "\n";
             for (int i = 1; i < lines.length; i++) {
                 int shared = longestPrefix(lines[i - 1], lines[i]);
                 if (shared > 0) {
-                    compressed += shared + " "
-                            + lines[i].substring(shared, lines[i].length()) + "\n";
+                    compressed += shared + lines[i].substring(shared, lines[i].length()) + "\n";
                 } else {
                     compressed += lines[i] + "\n";
                 }
             }
+
+
+
         } else {
             String[] lines = corpus.split("\n");
             compressed += 0 + " " + 0 + " " + lines[0] + "\n";
@@ -88,19 +93,20 @@ public class FrontCompression {
         }
 
         if (SORTED) {
+
+
+
             String[] lines = corpus.split("\n");
-            String lastLine = lines[0].split(" ")[1];
+            String lastLine = lines[0];
             String raw = lastLine + "\n";
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].split(" ").length > 1) {
-                    int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
+                if (breakOnNumber(lines[i]) != null) {
+                    int prefixLength = Integer.parseInt(breakOnNumber(lines[i])[0]);
                     String prefix = "";
                     if (prefixLength >= 1) {
                         prefix = lastLine.substring(0, prefixLength);
-                    } else {
-                        prefix = "";
                     }
-                    String suffix = lines[i].split(" ")[1];
+                    String suffix = breakOnNumber(lines[i])[1];
 
                     String rawLine = prefix + suffix;
                     raw += rawLine + "\n";
@@ -111,6 +117,9 @@ public class FrontCompression {
                 }
             }
             return raw;
+
+
+
         } else {
             String[] lines = corpus.split("\n");
             String lastLine = lines[0].split(" ")[2];
@@ -145,6 +154,27 @@ public class FrontCompression {
     }
 
     /**
+     * Break on numbers.
+     * @param line to break
+     * @return the string
+     */
+    public static String[] breakOnNumber(final String line) {
+        String[] result = new String[2];
+        for (int i = 0; i < line.length(); i++) {
+            if (!Character.isDigit(line.charAt(i))) {
+                if (i > 0) {
+                    result[0] = line.substring(0, i);
+                    result[1] = line.substring(i, line.length());
+                    return result;
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Compute the length of the common prefix between two strings.
      *
      * @param firstString the first string
@@ -152,9 +182,6 @@ public class FrontCompression {
      * @return the length of the common prefix between the two strings
      */
     private static int longestPrefix(final String firstString, final String secondString) {
-        /*
-         * Complete this function.
-         */
         int longest = 0;
         for (int i = 0; i < firstString.length() && i < secondString.length(); i++) {
             if (firstString.charAt(i) == secondString.charAt(i)) {
