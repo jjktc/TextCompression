@@ -249,8 +249,12 @@ public class FrontCompression {
         }
 
         if (decompressedWords.equals(originalWords)) {
-            System.out.println("Original length: " + originalWords.length());
-            System.out.println("Compressed length: " + compressedWords.length());
+            System.out.println("---------------");
+            System.out.println("\tOriginal length: " + originalWords.length());
+            System.out.println("\tCompressed length: " + compressedWords.length());
+            System.out.println("\tCompression ratio:");
+            System.out.println("\t" + ((float) compressedWords.length()
+                    / (float) originalWords.length() + "").substring(2, 2 * 2) + "%");
         } else {
             System.out.println("Your compression or decompression is broken!");
             String[] originalWordsArray = originalWords.split("\\R");
