@@ -35,17 +35,35 @@ public class FrontCompression {
         /*
          * Defend against bad inputs.
          */
+        String compressed = "";
         if (corpus == null) {
             return null;
         } else if (corpus.length() == 0) {
             return "";
         }
 
-        /*
-         * Complete this function.
-         */
+        String[] lines = corpus.split("\n");
 
-        return "";
+        compressed += getLine(0, lines[0]);
+
+        for (int i = 1; i < lines.length; i++) {
+            int shared = longestPrefix(lines[i - 1], lines[i]);
+            compressed += getLine(shared, lines[i].substring(shared, lines[i].length()));
+        }
+
+        return compressed;
+    }
+
+    /**
+     *
+     * Get what to print.
+     *
+     * @param prefix unused
+     * @param suffix unused
+     * @return unused
+     */
+    public static String getLine(final int prefix, final String suffix) {
+        return prefix + " " + suffix + "\n";
     }
 
     /**
@@ -64,11 +82,26 @@ public class FrontCompression {
             return "";
         }
 
-        /*
-         * Complete this function.
-         */
+        String[] lines = corpus.split("\n");
 
-        return "";
+        String lastLine = lines[0].split(" ")[1];
+        String raw = lastLine + "\n";
+        for (int i = 1; i < lines.length; i++) {
+            int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
+            String prefix = "";
+            if (prefixLength >= 1) {
+                prefix = lastLine.substring(0, prefixLength);
+            } else {
+                prefix = "";
+            }
+            String suffix = lines[i].split(" ")[1];
+
+            String rawLine = prefix + suffix;
+            raw += rawLine + "\n";
+            lastLine = rawLine;
+        }
+
+        return raw;
     }
 
     /**
@@ -82,7 +115,15 @@ public class FrontCompression {
         /*
          * Complete this function.
          */
-        return 0;
+        int longest = 0;
+        for (int i = 0; i < firstString.length() && i < secondString.length(); i++) {
+            if (firstString.charAt(i) == secondString.charAt(i)) {
+                longest++;
+            } else {
+                return longest;
+            }
+        }
+        return longest;
     }
 
     /**
@@ -110,6 +151,10 @@ public class FrontCompression {
         String originalWords = words;
         String compressedWords = compress(words);
         String decompressedWords = decompress(compressedWords);
+        String[] lines = decompressedWords.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            System.out.println(lines[i]);
+        }
 
         if (decompressedWords.equals(originalWords)) {
             System.out.println("Original length: " + originalWords.length());
