@@ -44,26 +44,14 @@ public class FrontCompression {
 
         String[] lines = corpus.split("\n");
 
-        compressed += getLine(0, lines[0]);
+        compressed += 0 + " " + lines[0] + "\n";
 
         for (int i = 1; i < lines.length; i++) {
             int shared = longestPrefix(lines[i - 1], lines[i]);
-            compressed += getLine(shared, lines[i].substring(shared, lines[i].length()));
+            compressed += shared + " " + lines[i].substring(shared, lines[i].length()) + "\n";
         }
 
         return compressed;
-    }
-
-    /**
-     *
-     * Get what to print.
-     *
-     * @param prefix unused
-     * @param suffix unused
-     * @return unused
-     */
-    public static String getLine(final int prefix, final String suffix) {
-        return prefix + " " + suffix + "\n";
     }
 
     /**
@@ -151,10 +139,6 @@ public class FrontCompression {
         String originalWords = words;
         String compressedWords = compress(words);
         String decompressedWords = decompress(compressedWords);
-        String[] lines = decompressedWords.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            System.out.println(lines[i]);
-        }
 
         if (decompressedWords.equals(originalWords)) {
             System.out.println("Original length: " + originalWords.length());
