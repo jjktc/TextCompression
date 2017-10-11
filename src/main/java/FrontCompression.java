@@ -51,7 +51,12 @@ public class FrontCompression {
             compressed += 0 + " " + lines[0] + "\n";
             for (int i = 1; i < lines.length; i++) {
                 int shared = longestPrefix(lines[i - 1], lines[i]);
-                compressed += shared + " " + lines[i].substring(shared, lines[i].length()) + "\n";
+                if (shared > 0) {
+                    compressed += shared + " "
+                            + lines[i].substring(shared, lines[i].length()) + "\n";
+                } else {
+                    compressed += lines[i] + "\n";
+                }
             }
         } else {
             String[] lines = corpus.split("\n");
@@ -87,18 +92,23 @@ public class FrontCompression {
             String lastLine = lines[0].split(" ")[1];
             String raw = lastLine + "\n";
             for (int i = 1; i < lines.length; i++) {
-                int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
-                String prefix = "";
-                if (prefixLength >= 1) {
-                    prefix = lastLine.substring(0, prefixLength);
-                } else {
-                    prefix = "";
-                }
-                String suffix = lines[i].split(" ")[1];
+                if (lines[i].split(" ").length > 1) {
+                    int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
+                    String prefix = "";
+                    if (prefixLength >= 1) {
+                        prefix = lastLine.substring(0, prefixLength);
+                    } else {
+                        prefix = "";
+                    }
+                    String suffix = lines[i].split(" ")[1];
 
-                String rawLine = prefix + suffix;
-                raw += rawLine + "\n";
-                lastLine = rawLine;
+                    String rawLine = prefix + suffix;
+                    raw += rawLine + "\n";
+                    lastLine = rawLine;
+                } else {
+                    raw += lines[i] + "\n";
+                    lastLine = lines[i];
+                }
             }
             return raw;
         } else {
