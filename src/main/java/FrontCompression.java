@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -25,6 +27,9 @@ import java.util.Scanner;
 
 public class FrontCompression {
 
+    /** My personal test on compression. */
+    public static final boolean SORTED = true;
+
     /**
      * Compress a newline-separated list of words using simple front compression.
      *
@@ -41,12 +46,22 @@ public class FrontCompression {
         } else if (corpus.length() == 0) {
             return "";
         }
-
-        String[] lines = corpus.split("\n");
-        compressed += 0 + " " + lines[0] + "\n";
-        for (int i = 1; i < lines.length; i++) {
-            int shared = longestPrefix(lines[i - 1], lines[i]);
-            compressed += shared + " " + lines[i].substring(shared, lines[i].length()) + "\n";
+        if (SORTED) {
+            String[] lines = corpus.split("\n");
+            compressed += 0 + " " + lines[0] + "\n";
+            for (int i = 1; i < lines.length; i++) {
+                int shared = longestPrefix(lines[i - 1], lines[i]);
+                compressed += shared + " " + lines[i].substring(shared, lines[i].length()) + "\n";
+            }
+        } else {
+            String[] lines = corpus.split("\n");
+            compressed += 0 + " " + 0 + " " + lines[0] + "\n";
+            for (int i = 1; i < lines.length; i++) {
+                int bestIndex = bestPrefix(lines, i);
+                int shared = longestPrefix(lines[bestIndex], lines[i]);
+                compressed += bestIndex + " " + shared + " "
+                        + lines[i].substring(shared, lines[i].length()) + "\n";
+            }
         }
         return compressed;
     }
@@ -67,24 +82,56 @@ public class FrontCompression {
             return "";
         }
 
-        String[] lines = corpus.split("\n");
-        String lastLine = lines[0].split(" ")[1];
-        String raw = lastLine + "\n";
-        for (int i = 1; i < lines.length; i++) {
-            int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
-            String prefix = "";
-            if (prefixLength >= 1) {
-                prefix = lastLine.substring(0, prefixLength);
-            } else {
-                prefix = "";
-            }
-            String suffix = lines[i].split(" ")[1];
+        if (SORTED) {
+            String[] lines = corpus.split("\n");
+            String lastLine = lines[0].split(" ")[1];
+            String raw = lastLine + "\n";
+            for (int i = 1; i < lines.length; i++) {
+                int prefixLength = Integer.parseInt(lines[i].split(" ")[0]);
+                String prefix = "";
+                if (prefixLength >= 1) {
+                    prefix = lastLine.substring(0, prefixLength);
+                } else {
+                    prefix = "";
+                }
+                String suffix = lines[i].split(" ")[1];
 
-            String rawLine = prefix + suffix;
-            raw += rawLine + "\n";
-            lastLine = rawLine;
+                String rawLine = prefix + suffix;
+                raw += rawLine + "\n";
+                lastLine = rawLine;
+            }
+            return raw;
+        } else {
+            String[] lines = corpus.split("\n");
+            String lastLine = lines[0].split(" ")[2];
+            String raw = lastLine + "\n";
+
+            List<String> decompressed = new ArrayList<String>();
+            decompressed.add(lastLine);
+
+            for (int i = 1; i < lines.length; i++) {
+                int bestIndex = i - Integer.parseInt(lines[i].split(" ")[0]);
+                int prefixLength = Integer.parseInt(lines[i].split(" ")[1]);
+                String prefix = "";
+                if (prefixLength >= 1) {
+                    if (bestIndex > 0) {
+                        prefix = decompressed.get(bestIndex).substring(0, prefixLength);
+                    } else {
+                        prefix = decompressed.get(decompressed.size() - 1)
+                                .substring(0, prefixLength);
+                    }
+                } else {
+                    prefix = "";
+                }
+                String suffix = lines[i].split(" ")[2];
+
+                String rawLine = prefix + suffix;
+                raw += rawLine + "\n";
+                decompressed.add(rawLine);
+                lastLine = rawLine;
+            }
+            return raw;
         }
-        return raw;
     }
 
     /**
@@ -107,6 +154,30 @@ public class FrontCompression {
             }
         }
         return longest;
+    }
+
+    /**
+     * Get the best prefix index.
+     *
+     * @param lines unused
+     * @param thisString unused
+     * @return the index
+     */
+    private static int bestPrefix(final String[] lines, final int thisString) {
+        int longest = 0;
+        int index = 0;
+        for (int i = 0; i < thisString; i++) {
+            int prefix = longestPrefix(lines[thisString], lines[i]);
+            if (prefix >= longest) {
+                longest = prefix;
+                index = i;
+            }
+        }
+        if (longest > 0) {
+            return thisString - index;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -134,6 +205,11 @@ public class FrontCompression {
         String originalWords = words;
         String compressedWords = compress(words);
         String decompressedWords = decompress(compressedWords);
+
+        String[] lines = compressedWords.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            System.out.println(lines[i]);
+        }
 
         if (decompressedWords.equals(originalWords)) {
             System.out.println("Original length: " + originalWords.length());
